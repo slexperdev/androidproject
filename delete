@@ -1,0 +1,198 @@
+import React, { useEffect, useState } from "react";
+import {
+  View, Text, StyleSheet, Button, Alert, PermissionsAndroid, TouchableOpacity
+} from "react-native";
+import Geolocation from "@react-native-community/geolocation";
+import Map from "./components/Map";
+import Camera from "./components/Camera";
+import SavedImg from "./components/SavedImg";
+import Test from "./components/Test";
+
+
+
+
+const App = () => {
+
+  const [currentLocation, setLocation] = useState(
+
+    {
+      latitude: 20,
+      longitude: 20,
+      latitudeDelta: 0.2,
+      longitudeDelta: 0.2,
+    }
+  )
+
+  const [mapOpen, openMap] = useState(false);
+  const [uploadImage, setImg] = useState(false);
+  const [uploadVid, setVid] = useState(false);
+  const [savedImg, setSavImg] = useState(false);
+
+  useEffect(
+    () => {
+
+
+
+      PermissionsAndroid.requestMultiple([
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      ]
+
+
+      ).then
+        (
+
+            Geolocation.getCurrentPosition(
+                (position) => {
+                  const currentCords = position.coords;
+  
+                  console.log(currentCords)
+                  setLocation(
+                    {
+                      latitude: currentCords.latitude,
+                      longitude: currentCords.longitude,
+                      latitudeDelta: 0.006,
+                      longitudeDelta: 0.005
+                    }
+                  )
+                }
+              ) 
+        )
+        .catch
+        (
+          (err) => {
+            console.warn(err);
+          }
+        )
+
+    }, []
+  )
+
+
+
+
+  return (
+    <>
+      <View style={Style.main}>
+
+        <Text style={Style.head}>
+          Select from the menue below:
+        </Text>
+
+        {((mapOpen || savedImg || uploadImage || uploadVid) && mapOpen) || !((mapOpen || savedImg || uploadImage || uploadVid)) ?
+
+          <TouchableOpacity style={Style.btnWrap} onPress={() => { openMap(true) }}>
+            <Text style={Style.text} >
+              Locate Me
+            </Text>
+          </TouchableOpacity>
+          : null
+        }
+
+        {(mapOpen || savedImg || uploadImage || uploadVid) && uploadImage || !((mapOpen || savedImg || uploadImage || uploadVid)) ?
+          <TouchableOpacity style={Style.btnWrap} onPress={() => { setImg(true) }}>
+            <Text style={Style.text} >
+              Upload Image
+            </Text>
+          </TouchableOpacity>
+          : null
+        }
+        {((mapOpen || savedImg || uploadImage || uploadVid) && uploadVid) || !((mapOpen || savedImg || uploadImage || uploadVid)) ?
+          <TouchableOpacity style={Style.btnWrap} onPress={() => { setVid(true) }}>
+            <Text style={Style.text} >
+              Upload Video
+            </Text>
+          </TouchableOpacity>
+          : null
+        }
+
+        {((mapOpen || savedImg || uploadImage || uploadVid) && savedImg) || !((mapOpen || savedImg || uploadImage || uploadVid)) ?
+          <TouchableOpacity style={Style.btnWrap} onPress={() => { setSavImg(true) }}>
+            <Text style={Style.text} >
+              Saved Images
+            </Text>
+          </TouchableOpacity>
+          : null
+        }
+
+{(mapOpen || savedImg || uploadImage || uploadVid) ?
+
+  
+
+        <TouchableOpacity style={Style.btnWrap} onPress={() => {
+          setImg(false)
+          setVid(false)
+          setSavImg(false)
+          openMap(false)
+
+        }}>
+          <Text style={Style.text} >
+            Go Back</Text>
+
+        </TouchableOpacity>
+:null}
+
+
+
+      </View>
+
+
+      {mapOpen ?
+
+        <Map openMap={openMap} currentLocation={currentLocation} />
+        : null}
+      {
+        uploadImage || uploadVid ?
+          <Camera isImage={uploadImage} isVideo={uploadVid} location={currentLocation} />
+          : null
+      }
+      {savedImg ?
+        <SavedImg /> : null
+      }
+
+
+
+
+    </>
+  )
+}
+
+const Style = StyleSheet.create(
+  {
+    main: {
+      // backgroundColor:'white',
+      // backgroundColor:"red",
+      display: 'flex',
+      flexDirection: "column",
+      alignItems: 'center',
+      justifyContent: 'space-around',
+      paddingTop: 20,
+      height: 200,
+
+    },
+    text: {
+      color: "black",
+      textAlign: "center",
+      fontSize: 16,
+
+    },
+    head: {
+      color: 'white',
+      fontSize: 20,
+    },
+    btnWrap: {
+      backgroundColor: 'white',
+      width: 150,
+      height: 30,
+    },
+    map: {
+      ...StyleSheet.absoluteFillObject,
+    },
+  }
+)
+
+export default App
+
+
+
